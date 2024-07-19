@@ -1,0 +1,3 @@
+{
+    "CHECK_SH": "bash $HOME/airflow/dags/check.sh"
+}
