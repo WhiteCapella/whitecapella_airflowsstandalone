@@ -45,12 +45,13 @@ with DAG(
         YYYYMMDD = kwargs['ds_nodash']
         df = save2df(YYYYMMDD)
         print(df.head(5))
-
-
-
-    get_data = PythonOperator(
+    
+    
+    get_data = PythonVirtualenvOperator(
         task_id='get_data',
-        python_callable=get_data
+        python_callable=get_data,
+        requirements=["git+https://github.com/WhiteCapella/mov.git@0.3"],
+        system_site_packages=False,
     )
 
     save_data = BashOperator(
