@@ -25,14 +25,15 @@ with DAG(
     max_active_tasks=3,
     description='movie',
     schedule="10 2 * * *",
-    start_date=datetime(2024, 8, 1),
+    start_date=datetime(2015, 1, 1),
+    end_date=datetime(2015, 12, 31),
     catchup=True,
     tags=['movie'],
 ) as dag:
     # Define Functions
     def repart():
-    from movie_spark_module.data import re_partition
-    re_partition(ds_nodash)
+        from movie_spark_module.data import re_partition
+        re_partition(ds_nodash)
 
     # Tasks
     start = EmptyOperator(task_id='start')
@@ -47,7 +48,7 @@ with DAG(
             $SPARK_HOME/bin/spark-submit ~/airflow_pyspark/py/movie_join_df.py
             """
     )
-    agg = PythonVirtualenvOperator(
+    agg = BashOperator(
             task_id='agg',
             bash_command="""
             $SPARK_HOME/bin/spark-submit ~/airflow_pyspark/py/movie_agg.py
