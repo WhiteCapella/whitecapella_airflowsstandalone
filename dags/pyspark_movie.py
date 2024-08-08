@@ -39,7 +39,7 @@ with DAG(
     re_partition = PythonVirtualenvOperator(
             task_id='re.partition',
             python_callable=repart,
-            requirements=[""],
+            requirements=["git+https://github.com/WhiteCapella/movie_spark_module.git"],
     )
     join_df = BashOperator(
             task_id='join.df',
