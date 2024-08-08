@@ -29,3 +29,31 @@ with DAG(
     catchup=True,
     tags=['movie'],
 ) as dag:
+    # Define Functions
+    def repart():
+    from movie_spark_module.data import re_partition
+    re_partition(ds_nodash)
+
+    # Tasks
+    start = EmptyOperator(task_id='start')
+    re_partition = PythonVirtualenvOperator(
+            task_id='re.partition',
+            python_callable=repart,
+            requirements=[""],
+    )
+    join_df = BashOperator(
+            task_id='join.df',
+            bash_command="""
+            $SPARK_HOME/bin/spark-submit ~/airflow_pyspark/py/movie_join_df.py
+            """
+    )
+    agg = PythonVirtualenvOperator(
+            task_id='agg',
+            bash_command="""
+            $SPARK_HOME/bin/spark-submit ~/airflow_pyspark/py/movie_agg.py
+            """,
+            )
+    end = EmptyOperator(task_id='end')
+
+    start >> re_partition >> join_df >> agg >> end
+
