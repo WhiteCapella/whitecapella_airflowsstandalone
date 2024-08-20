@@ -12,6 +12,8 @@ from airflow.operators.python import (
         BranchPythonOperator
         )
 
+req = "git+https://github.com/WhiteCapella/mvstar.git"
+
 with DAG(
     'movies-dynamic-json',
     default_args={
@@ -21,13 +23,10 @@ with DAG(
     },
     description='hello world DAG',
     schedule_interval='@once',
-    #schedule="10 2 * * *",
     start_date=datetime(2015, 1, 1),
     end_date=datetime(2015,1,2),
     catchup=True,
     tags=["movies","dynamic","json"],
-#    max_active_runs=1,  # 동시에 실행될 수 있는 최대 DAG 인스턴스 수
-#    max_active_tasks=3,  # 동시에 실행될 수 있는 최대 태스크 수
 ) as dag:
     # API 호출 후 10 페이지 저장
     def mkdyna(execution_date):
@@ -39,9 +38,11 @@ with DAG(
     start = EmptyOperator(task_id = 'start')
     end = EmptyOperator(task_id = 'end')
 
-    get_data = PythonOperator(
+    get_data = PythonVirtualenvOperator(
             task_id = "get.data",
-            python_callable=mkdyna)
+            python_callable=mkdyna,
+            requirements=req,
+            )
 
     pars_parq = BashOperator(
         task_id='parsing.parquet',
